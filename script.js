@@ -1,7 +1,7 @@
+
 import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.141.0/examples/jsm/controls/OrbitControls.js';
 import { OBJLoader } from 'https://unpkg.com/three@0.141.0/examples/jsm/loaders/OBJLoader.js';
-
 
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas});
@@ -29,6 +29,65 @@ scene.background = new THREE.Color('grey');
 	scene.add(light);
 }
 
+function loadObj(objName) {
+	var onProgress = function (xhr) {
+		if (xhr.lengthComputable) {
+			var percentComplete = (xhr.loaded / xhr.total) * 100;
+			console.log(Math.round(percentComplete, 2) + "% downloaded");
+		}
+	};
+
+	var onError = function (xhr) {};
+
+	// Manager
+	var manager = new THREE.LoadingManager();
+	manager.onProgress = function (item, loaded, total) {
+		console.log(
+			"Started loading file: " +
+			item +
+			".\nLoaded " +
+			loaded +
+			" of " +
+			total +
+			" files."
+		);
+	};
+
+	var loader = new OBJLoader(manager);
+	loader.load(
+		objName + ".obj",
+		function (object) {
+			var objBbox = new THREE.Box3().setFromObject(object);
+
+			// Geometry vertices centering to world axis
+			try {
+				var bboxCenter = new THREE.Vector3();
+				objBbox.getCenter(bboxCenter);
+				bboxCenter.multiplyScalar(-1);
+			}
+			catch (err) {
+				console.log(err);
+			}
+
+			object.traverse(function (child) {
+				if (child instanceof THREE.Mesh) {
+					child.geometry.translate(bboxCenter.x, bboxCenter.y, bboxCenter.z);
+				}
+			});
+
+			objBbox.setFromObject(object); // Update the bounding box
+			console.log(object);
+			scene.add(object);
+		},
+		onProgress,
+		onError
+	);
+}
+loadObj("Andy");
+const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+const cube = new THREE.Mesh( geometry, material );
+scene.add( cube );
 
 
 const raycaster = new THREE.Raycaster();
@@ -43,23 +102,6 @@ function onPointerMove( event ) {
 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 }
-
-// instantiate a loader
-const loader = new OBJLoader();
-
-loader.load(
-	'Andy.obj',
-	function ( object ) {
-		scene.add( object );
-
-	},
-	function ( xhr ) {
-		console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-	},
-	function ( error ) {
-		console.log( 'An error happened' );
-	}
-);
 
 function onClick(event) {
 	const mouse = {
