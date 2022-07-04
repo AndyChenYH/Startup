@@ -18,6 +18,8 @@ const controls = new OrbitControls(camera, canvas);
 controls.screenSpacePanning = true;
 controls.target.set(0, 0, 0);
 controls.update();
+controls.enabled = false;
+controls.rotate = false;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('grey');
@@ -102,6 +104,13 @@ function onPointerMove( event ) {
 	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
 }
+class Comment {
+	constructor(pos, text) {
+		this.pos = pos;
+		this.text = text;
+	}
+}
+var comments = [];
 
 function onClick(event) {
 	const mouse = {
@@ -123,6 +132,8 @@ function onClick(event) {
 		var poo = intersects[0].point;
 		cube.position.set(poo.x, poo.y, poo.z);
 		scene.add(cube)
+		console.log("hi");
+//		comments.push(new Comment(poo, prompt("enter your comment")));
 	}
 }
 
@@ -135,7 +146,20 @@ function render() {
 }
 
 window.addEventListener( 'pointermove', onPointerMove );
-window.addEventListener('click', onClick);
 renderer.domElement.addEventListener('click', onClick, false)
+window.addEventListener("keydown", function(event) {
+  // Bind to both command (for Mac) and control (for Win/Linux)
+  if (event.ctrlKey) {
+	  controls.enabled = true;
+	  controls.rotate = true;
+  }
+}, false);
+window.addEventListener("keyup", function(event) {
+  // Bind to both command (for Mac) and control (for Win/Linux)
+  if (event.ctrlKey) {
+	  controls.enabled = false;
+	  controls.rotate = false;
+  }
+}, false);
 
 window.requestAnimationFrame(render);
