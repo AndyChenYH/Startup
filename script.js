@@ -5,7 +5,8 @@ import { OBJLoader } from 'https://unpkg.com/three@0.141.0/examples/jsm/loaders/
 
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({canvas});
-renderer.setSize( window.innerWidth, window.innerHeight );
+const canvasWid = Math.floor(window.innerWidth * 2/3), canvasHei = (window.innerHeight * 2/3);
+renderer.setSize(canvasWid, canvasHei);
 
 const fov = 100;
 const aspect = 2;  // the canvas default
@@ -98,8 +99,8 @@ function onPointerMove( event ) {
 	// calculate pointer position in normalized device coordinates
 	// (-1 to +1) for both components
 
-	pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-	pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	pointer.x = ( event.clientX / canvasWid) * 2 - 1;
+	pointer.y = - ( event.clientY / canvasHei) * 2 + 1;
 
 }
 class Comment {
@@ -123,12 +124,12 @@ function onClick(event) {
 		// calculate objects intersecting the picking ray
 		const intersects = raycaster.intersectObjects( scene.children );
 		if (intersects.length !== 0) {
-			const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-			const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-			const cube = new THREE.Mesh( geometry, material );
+			const geometry = new THREE.SphereGeometry(1, 32, 16);
+			const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+			const sphere = new THREE.Mesh( geometry, material );
 			var poo = intersects[0].point;
-			cube.position.set(poo.x, poo.y, poo.z);
-			scene.add(cube)
+			sphere.position.set(poo.x, poo.y, poo.z);
+			scene.add( sphere );
 			console.log("hi");
 			comments.push(new Comment(poo, prompt("enter your comment")));
 		}
