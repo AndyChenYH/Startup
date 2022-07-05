@@ -18,8 +18,6 @@ const controls = new OrbitControls(camera, canvas);
 controls.screenSpacePanning = true;
 controls.target.set(0, 0, 0);
 controls.update();
-controls.enabled = false;
-controls.rotate = false;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('grey');
@@ -112,28 +110,29 @@ class Comment {
 }
 var comments = [];
 
+var commenting = false;
 function onClick(event) {
-	const mouse = {
-		x: (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
-		y: -(event.clientY / renderer.domElement.clientHeight) * 2 + 1,
-	}
-	// update the picking ray with the camera and pointer position
-	raycaster.setFromCamera( pointer, camera );
+	if (commenting) {
+		const mouse = {
+			x: (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
+			y: -(event.clientY / renderer.domElement.clientHeight) * 2 + 1,
+		}
+		// update the picking ray with the camera and pointer position
+		raycaster.setFromCamera( pointer, camera );
 
-	// calculate objects intersecting the picking ray
-	const intersects = raycaster.intersectObjects( scene.children );
-	console.log(intersects);
-	if (intersects.length !== 0) {
-		var randomColor = "#000000".replace(/0/g,function(){return (~~(Math.random()*16)).toString(16);});
-		intersects[0].object.material.color.set(randomColor);
-		const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-		const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-		const cube = new THREE.Mesh( geometry, material );
-		var poo = intersects[0].point;
-		cube.position.set(poo.x, poo.y, poo.z);
-		scene.add(cube)
-		console.log("hi");
-//		comments.push(new Comment(poo, prompt("enter your comment")));
+		// calculate objects intersecting the picking ray
+		const intersects = raycaster.intersectObjects( scene.children );
+		if (intersects.length !== 0) {
+			const geometry = new THREE.BoxGeometry( 1, 1, 1 );
+			const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+			const cube = new THREE.Mesh( geometry, material );
+			var poo = intersects[0].point;
+			cube.position.set(poo.x, poo.y, poo.z);
+			scene.add(cube)
+			console.log("hi");
+			comments.push(new Comment(poo, prompt("enter your comment")));
+		}
+		commenting = false;
 	}
 }
 
@@ -147,19 +146,21 @@ function render() {
 
 window.addEventListener( 'pointermove', onPointerMove );
 renderer.domElement.addEventListener('click', onClick, false)
-window.addEventListener("keydown", function(event) {
-  // Bind to both command (for Mac) and control (for Win/Linux)
-  if (event.ctrlKey) {
-	  controls.enabled = true;
-	  controls.rotate = true;
-  }
-}, false);
-window.addEventListener("keyup", function(event) {
-  // Bind to both command (for Mac) and control (for Win/Linux)
-  if (event.ctrlKey) {
-	  controls.enabled = false;
-	  controls.rotate = false;
-  }
-}, false);
+
+window.addEventListener('keydown', keyDown);
+window.addEventListener('keyup', keyUp);
+function keyDown(e){
+	console.log(e);
+	if (e.key == "Alt") {
+		console.log("down");
+		commenting = true;
+	}
+}
+function keyUp(e) {
+	if (e.key == "Alt") {
+		console.log("up");
+		commenting = false;
+	}
+}
 
 window.requestAnimationFrame(render);
