@@ -1,38 +1,7 @@
-
 body {
 	margin: 0px;
 }
 .container {
 	display: flex;
-
-}
-div.ext-box { display: table; width:100%;}
-div.int-box { display: table-cell; }
-
-.box{
-  display:inline-block;
-  height: 100vh;
-   width: 49%;
-    background-color: blue;
-    overflow: scroll;
-}
-
-.noselect {
-  -webkit-touch-callout: none; /* iOS Safari */
-    -webkit-user-select: none; /* Safari */
-     -khtml-user-select: none; /* Konqueror HTML */
-       -moz-user-select: none; /* Old versions of Firefox */
-        -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  supported by Chrome, Edge, Opera and Firefox */
-}
-.footer-icons {
-    border: 1px solid #000;
-    padding-top:40px;
-    width:300px;
-    margin: auto;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
+	align-items: flex-start
 }

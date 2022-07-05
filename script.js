@@ -131,10 +131,15 @@ function onClick(event) {
 			sphere.position.set(poo.x, poo.y, poo.z);
 			scene.add( sphere );
 			console.log("hi");
-			comments.push(new Comment(poo, prompt("enter your comment")));
+			addComment(poo, prompt("enter your comment"));
 		}
 		commenting = false;
 	}
+}
+function addComment(coord, text) {
+	comments.push(new Comment(coord, text));
+	const doc = document.getElementById("com");
+	doc.appendChild(document.createTextNode(text));
 }
 
 function render() {
