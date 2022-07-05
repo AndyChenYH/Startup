@@ -8,7 +8,7 @@ const renderer = new THREE.WebGLRenderer({canvas});
 const canvasWid = Math.floor(window.innerWidth * 2/3), canvasHei = (window.innerHeight * 2/3);
 renderer.setSize(canvasWid, canvasHei);
 
-const fov = 100;
+const fov = 45;
 const aspect = 2;  // the canvas default
 const near = 0.1;
 const far = 500;
