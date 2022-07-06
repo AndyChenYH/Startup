@@ -122,11 +122,19 @@ function onClick(event) {
 				var prom = prompt("enter your comment");
 				// user didn't cancel the prompt or enter empty input
 				if (prom !== null && prom !== "") {
-					const geometry = new THREE.SphereGeometry(1, 32, 16);
-					const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-					const sphere = new THREE.Mesh(geometry, material);
-					sphere.position.set(poo.x, poo.y, poo.z);
-					scene.add(sphere);
+					const n = new THREE.Vector3()
+					n.copy(intersects[0].face.normal)
+					n.transformDirection(intersects[0].object.matrixWorld)
+			
+					// using a flattened cone as circular plane
+					const coneGeometry = new THREE.ConeGeometry(1, 0, 8);
+					const cone = new THREE.Mesh(coneGeometry, material)
+					cone.lookAt(n)
+					cone.rotateX(Math.PI / 2)
+					cone.position.copy(intersects[0].point)
+					cone.position.addScaledVector(n, 0.1)
+			
+					scene.add(cone)
 					addComment(poo, prom);
 				}
 			}
