@@ -4,8 +4,8 @@ import { OrbitControls } from 'https://unpkg.com/three@0.141.0/examples/jsm/cont
 import { OBJLoader } from 'https://unpkg.com/three@0.141.0/examples/jsm/loaders/OBJLoader.js';
 
 const canvas = document.querySelector('#c');
-const renderer = new THREE.WebGLRenderer({canvas});
-const canvasWid = Math.floor(window.innerWidth * 2/3), canvasHei = (window.innerHeight * 2/3);
+const renderer = new THREE.WebGLRenderer({ canvas });
+const canvasWid = Math.floor(window.innerWidth * 2 / 3), canvasHei = (window.innerHeight * 2 / 3);
 renderer.setSize(canvasWid, canvasHei);
 
 const fov = 45;
@@ -38,7 +38,7 @@ function loadObj(objName) {
 		}
 	};
 
-	var onError = function (xhr) {};
+	var onError = function (xhr) { };
 
 	// Manager
 	var manager = new THREE.LoadingManager();
@@ -85,22 +85,22 @@ function loadObj(objName) {
 	);
 }
 loadObj("Andy");
-const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-const cube = new THREE.Mesh( geometry, material );
-scene.add( cube );
+const geometry = new THREE.BoxGeometry(1, 1, 1);
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+const cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
 
 
 const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
-function onPointerMove( event ) {
+function onPointerMove(event) {
 
 	// calculate pointer position in normalized device coordinates
 	// (-1 to +1) for both components
 
-	pointer.x = ( event.clientX / canvasWid) * 2 - 1;
-	pointer.y = - ( event.clientY / canvasHei) * 2 + 1;
+	pointer.x = (event.clientX / canvasWid) * 2 - 1;
+	pointer.y = - (event.clientY / canvasHei) * 2 + 1;
 
 }
 class Comment {
@@ -119,52 +119,81 @@ function onClick(event) {
 			y: -(event.clientY / renderer.domElement.clientHeight) * 2 + 1,
 		}
 		// update the picking ray with the camera and pointer position
-		raycaster.setFromCamera( pointer, camera );
+		raycaster.setFromCamera(pointer, camera);
 
 		// calculate objects intersecting the picking ray
-		const intersects = raycaster.intersectObjects( scene.children );
+		const intersects = raycaster.intersectObjects(scene.children);
 		if (intersects.length !== 0) {
-			const geometry = new THREE.SphereGeometry(1, 32, 16);
-			const material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-			const sphere = new THREE.Mesh( geometry, material );
 			var poo = intersects[0].point;
-			sphere.position.set(poo.x, poo.y, poo.z);
-			scene.add( sphere );
-			console.log("hi");
-			addComment(poo, prompt("enter your comment"));
+			var fetch = fetchComment(poo);
+			// make new comment
+			if (fetch === -1) {
+				var prom = prompt("enter your comment");
+				// user didn't cancel the prompt or enter empty input
+				if (prom !== null && prom !== "") {
+					const geometry = new THREE.SphereGeometry(1, 32, 16);
+					const material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+					const sphere = new THREE.Mesh(geometry, material);
+					sphere.position.set(poo.x, poo.y, poo.z);
+					scene.add(sphere);
+					addComment(poo, prom);
+				}
+			}
+			// fetch existing comment
+			else {
+				document.getElementById(fetch.toString()).style.backgroundColor = "yellow";
+				setInterval(function() {document.getElementById(fetch.toString()).style.backgroundColor = "white"; }, 1000);
+			}
 		}
 		commenting = false;
 	}
 }
+function fetchComment(coord) {
+	function dist(a, b) {
+		var dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
+		return Math.sqrt(dx * dx + dy * dy + dz * dz);
+	}
+	// minimum radius the mouse has to click within
+	const minRad = 1;
+	
+	for (var i = 0; i < comments.length; i ++) {
+		if (dist(coord, comments[i].pos) < minRad) {
+			return i;
+		}
+	}
+	return -1;
+}
 function addComment(coord, text) {
 	comments.push(new Comment(coord, text));
-	const doc = document.getElementById("com");
-	doc.appendChild(document.createTextNode(text));
+	var tbodyRef = document.getElementById('comm').getElementsByTagName('tbody')[0];
+	var newRow = tbodyRef.insertRow();
+	var newCell = newRow.insertCell();
+	var newText = document.createTextNode(text);
+	newCell.appendChild(newText);
+	newCell.setAttribute("id", comments.length - 1);
+
 }
 
 function render() {
 	controls.update();
 
 
-	renderer.render( scene, camera );
+	renderer.render(scene, camera);
 	requestAnimationFrame(render);
 }
 
-window.addEventListener( 'pointermove', onPointerMove );
+window.addEventListener('pointermove', onPointerMove);
 renderer.domElement.addEventListener('click', onClick, false)
 
 window.addEventListener('keydown', keyDown);
 window.addEventListener('keyup', keyUp);
-function keyDown(e){
-	console.log(e);
-	if (e.key == "Alt") {
-		console.log("down");
+function keyDown(e) {
+	if (e.key === "Alt") {
 		commenting = true;
 	}
 }
 function keyUp(e) {
-	if (e.key == "Alt") {
-		console.log("up");
+	if (e.key === "Alt") {
 		commenting = false;
 	}
 }
