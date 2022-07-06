@@ -15,6 +15,8 @@ const far = 500;
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.set(0, 10, 20);
 
+
+
 const controls = new OrbitControls(camera, canvas);
 controls.screenSpacePanning = true;
 controls.target.set(0, 0, 0);
@@ -34,7 +36,6 @@ function loadObj(objName) {
 	var onProgress = function (xhr) {
 		if (xhr.lengthComputable) {
 			var percentComplete = (xhr.loaded / xhr.total) * 100;
-			console.log(Math.round(percentComplete, 2) + "% downloaded");
 		}
 	};
 
@@ -43,15 +44,6 @@ function loadObj(objName) {
 	// Manager
 	var manager = new THREE.LoadingManager();
 	manager.onProgress = function (item, loaded, total) {
-		console.log(
-			"Started loading file: " +
-			item +
-			".\nLoaded " +
-			loaded +
-			" of " +
-			total +
-			" files."
-		);
 	};
 
 	var loader = new OBJLoader(manager);
@@ -77,7 +69,6 @@ function loadObj(objName) {
 			});
 
 			objBbox.setFromObject(object); // Update the bounding box
-			console.log(object);
 			scene.add(object);
 		},
 		onProgress,
