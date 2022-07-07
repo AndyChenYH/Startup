@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'https://unpkg.com/three@0.141.0/examples/jsm/controls/OrbitControls.js';
 import { OBJLoader } from 'https://unpkg.com/three@0.141.0/examples/jsm/loaders/OBJLoader.js';
+import { Vector3 } from 'three';
 
 const canvas = document.querySelector('#c');
 const renderer = new THREE.WebGLRenderer({ canvas });
@@ -140,8 +141,9 @@ function onClick(event) {
 			}
 			// fetch existing comment
 			else {
+				var curColor = document.getElementById(fetch.toString()).style.backgroundColor;
 				document.getElementById(fetch.toString()).style.backgroundColor = "yellow";
-				setInterval(function() {document.getElementById(fetch.toString()).style.backgroundColor = "white"; }, 1000);
+				setInterval(function() {document.getElementById(fetch.toString()).style.backgroundColor = curColor; }, 1000);
 			}
 		}
 		commenting = false;
@@ -162,16 +164,30 @@ function fetchComment(coord) {
 	}
 	return -1;
 }
+function getFormattedDate() {
+    var date = new Date();
+    var str = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    return str;
+}
 function addComment(coord, text) {
 	comments.push(new Comment(coord, text));
-	var tbodyRef = document.getElementById('comm').getElementsByTagName('tbody')[0];
-	var newRow = tbodyRef.insertRow();
-	var newCell = newRow.insertCell();
-	var newText = document.createTextNode(text);
-	newCell.appendChild(newText);
-	newCell.setAttribute("id", comments.length - 1);
-
+	var lis = document.getElementById("comm");
+	var entry = document.createElement("li");
+	var time = document.createElement("div");
+	time.className = "time";
+	time.appendChild(document.createTextNode(getFormattedDate()));
+	var tex = document.createElement("p");
+	tex.appendChild(document.createTextNode(text));
+	tex.setAttribute("id", comments.length - 1);
+	entry.appendChild(time);
+	entry.appendChild(tex);
+	lis.appendChild(entry);
 }
+
+// tester
+{
+	addComment(new Vector3(0, 0, 0), "this is a very bad design please fix this thanks");
+}	
 
 function render() {
 	controls.update();
