@@ -108,10 +108,6 @@ var commenting = false;
 function onClick(event) {
 	if (commenting) {
 		var rect = canvas.getBoundingClientRect();
-		const mouse = {
-			x: ((event.clientX - rect.left) / renderer.domElement.clientWidth) * 2 - 1,
-			y: -((event.clientY - rect.top) / renderer.domElement.clientHeight) * 2 + 1,
-		}
 		// update the picking ray with the camera and pointer position
 		raycaster.setFromCamera(pointer, camera);
 
@@ -148,7 +144,9 @@ function onClick(event) {
 				setInterval(function() {document.getElementById(fetch.toString()).style.backgroundColor = curColor; }, 1000);
 			}
 		}
+		// set back after commenting
 		commenting = false;
+		controls.enabled = true;
 	}
 }
 function fetchComment(coord) {
@@ -184,6 +182,7 @@ function addComment(coord, text) {
 	entry.appendChild(time);
 	entry.appendChild(tex);
 	lis.appendChild(entry);
+	entry.scrollIntoView();
 }
 
 // tester
@@ -201,7 +200,6 @@ function addComment(coord, text) {
 function render() {
 	controls.update();
 
-
 	renderer.render(scene, camera);
 	requestAnimationFrame(render);
 }
@@ -214,11 +212,13 @@ window.addEventListener('keyup', keyUp);
 function keyDown(e) {
 	if (e.key === "Alt") {
 		commenting = true;
+		controls.enabled = false;
 	}
 }
 function keyUp(e) {
 	if (e.key === "Alt") {
 		commenting = false;
+		controls.enabled = true;
 	}
 }
 
