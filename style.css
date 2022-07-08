@@ -16,7 +16,7 @@ li {
 
 .container {
 	display: flex;
-	justify-content: center;
+
 	align-items: center;
 	padding: 0 1rem;
 	background: linear-gradient(45deg, #209cff, #68e0cf);
@@ -29,6 +29,7 @@ li {
 	background: #eaf6ff;
 	padding: 2rem;
 	border-radius: 15px;
+	margin: auto;
 }
 
 h1 {
