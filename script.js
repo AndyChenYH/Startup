@@ -187,6 +187,13 @@ function addComment(coord, text) {
 // tester
 {
 	addComment(new Vector3(0, 0, 0), "this is a very bad design please fix this thanks");
+	addComment(new Vector3(0, 0, 0), "gay");
+	addComment(new Vector3(0, 0, 0), "gay");
+	addComment(new Vector3(0, 0, 0), "gay");
+	addComment(new Vector3(0, 0, 0), "gay");
+	addComment(new Vector3(0, 0, 0), "gay");
+	addComment(new Vector3(0, 0, 0), "gay");
+	addComment(new Vector3(0, 0, 0), "gay");
 }	
 
 function render() {

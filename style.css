@@ -21,6 +21,8 @@ li {
 	padding: 0 1rem;
 	background: linear-gradient(45deg, #209cff, #68e0cf);
 	padding: 3rem 0;
+	height: 300px;
+	overflow-y: auto;
 }
 
 .wrapper {
