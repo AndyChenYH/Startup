@@ -91,8 +91,9 @@ function onPointerMove(event) {
 	// calculate pointer position in normalized device coordinates
 	// (-1 to +1) for both components
 
-	pointer.x = (event.clientX / canvasWid) * 2 - 1;
-	pointer.y = - (event.clientY / canvasHei) * 2 + 1;
+	var rect = canvas.getBoundingClientRect();
+	pointer.x = ((event.clientX - rect.left) / canvasWid) * 2 - 1;
+	pointer.y = - ((event.clientY - rect.top) / canvasHei) * 2 + 1;
 
 }
 class Comment {
@@ -106,9 +107,10 @@ var comments = [];
 var commenting = false;
 function onClick(event) {
 	if (commenting) {
+		var rect = canvas.getBoundingClientRect();
 		const mouse = {
-			x: (event.clientX / renderer.domElement.clientWidth) * 2 - 1,
-			y: -(event.clientY / renderer.domElement.clientHeight) * 2 + 1,
+			x: ((event.clientX - rect.left) / renderer.domElement.clientWidth) * 2 - 1,
+			y: -((event.clientY - rect.top) / renderer.domElement.clientHeight) * 2 + 1,
 		}
 		// update the picking ray with the camera and pointer position
 		raycaster.setFromCamera(pointer, camera);
