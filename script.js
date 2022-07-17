@@ -16,8 +16,6 @@ const far = 500;
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.set(0, 10, 20);
 
-
-
 const controls = new OrbitControls(camera, canvas);
 controls.screenSpacePanning = true;
 controls.target.set(0, 0, 0);
@@ -32,7 +30,8 @@ scene.background = new THREE.Color('grey');
 	const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
 	scene.add(light);
 }
-
+// unique ID of the base object; this is to make sure we only highlight the object itself
+var obj;
 function loadObj(objName) {
 	var onProgress = function (xhr) {
 		if (xhr.lengthComputable) {
@@ -52,7 +51,6 @@ function loadObj(objName) {
 		objName + ".obj",
 		function (object) {
 			var objBbox = new THREE.Box3().setFromObject(object);
-
 			// Geometry vertices centering to world axis
 			try {
 				var bboxCenter = new THREE.Vector3();
@@ -62,9 +60,9 @@ function loadObj(objName) {
 			catch (err) {
 				console.log(err);
 			}
-
 			object.traverse(function (child) {
 				if (child instanceof THREE.Mesh) {
+					obj = child;
 					child.geometry.translate(bboxCenter.x, bboxCenter.y, bboxCenter.z);
 				}
 			});
@@ -97,80 +95,21 @@ function onPointerMove(event) {
 
 }
 class Comment {
-	constructor(pos, text) {
-		this.pos = pos;
-		this.text = text;
+	constructor() {
+		this.pos = [];
+		this.text = "";
 	}
 }
 var comments = [];
-
-var commenting = false;
-function onClick(event) {
-	if (commenting) {
-		var rect = canvas.getBoundingClientRect();
-		// update the picking ray with the camera and pointer position
-		raycaster.setFromCamera(pointer, camera);
-
-		// calculate objects intersecting the picking ray
-		const intersects = raycaster.intersectObjects(scene.children);
-		if (intersects.length !== 0) {
-			var poo = intersects[0].point;
-			var fetch = fetchComment(poo);
-			// make new comment
-			if (fetch === -1) {
-				var prom = prompt("enter your comment");
-				// user didn't cancel the prompt or enter empty input
-				if (prom !== null && prom !== "") {
-					const n = new THREE.Vector3()
-					n.copy(intersects[0].face.normal)
-					n.transformDirection(intersects[0].object.matrixWorld)
-			
-					// using a flattened cone as circular plane
-					const coneGeometry = new THREE.ConeGeometry(1, 0, 8);
-					const cone = new THREE.Mesh(coneGeometry, material)
-					cone.lookAt(n)
-					cone.rotateX(Math.PI / 2)
-					cone.position.copy(intersects[0].point)
-					cone.position.addScaledVector(n, 0.1)
-			
-					scene.add(cone)
-					addComment(poo, prom);
-				}
-			}
-			// fetch existing comment
-			else {
-				var curColor = document.getElementById(fetch.toString()).style.backgroundColor;
-				document.getElementById(fetch.toString()).style.backgroundColor = "yellow";
-				setInterval(function() {document.getElementById(fetch.toString()).style.backgroundColor = curColor; }, 1000);
-			}
-		}
-		// set back after commenting
-		commenting = false;
-		controls.enabled = true;
-	}
-}
-function fetchComment(coord) {
-	function dist(a, b) {
-		var dx = a.x - b.x, dy = a.y - b.y, dz = a.z - b.z;
-		return Math.sqrt(dx * dx + dy * dy + dz * dz);
-	}
-	// minimum radius the mouse has to click within
-	const minRad = 1;
-	
-	for (var i = 0; i < comments.length; i ++) {
-		if (dist(coord, comments[i].pos) < minRad) {
-			return i;
-		}
-	}
-	return -1;
-}
+var curComment;
+var alting = false;
+var clicking = false;
 function getFormattedDate() {
     var date = new Date();
     var str = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
     return str;
 }
-function addComment(coord, text) {
-	comments.push(new Comment(coord, text));
+function addComment(text) {
 	var lis = document.getElementById("comm");
 	var entry = document.createElement("li");
 	var time = document.createElement("div");
@@ -188,37 +127,73 @@ function addComment(coord, text) {
 // tester
 {
 	addComment(new Vector3(0, 0, 0), "this is a very bad design please fix this thanks");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
 }	
 
+// only checks for one pressed point
+function checkMouse() {
+	if (!alting || !clicking) return;
+	var rect = canvas.getBoundingClientRect();
+	// update the picking ray with the camera and pointer position
+	raycaster.setFromCamera(pointer, camera);
+
+	// calculate objects intersecting the picking ray
+	const intersects = raycaster.intersectObjects(scene.children);
+	
+	if (intersects.length !== 0) {
+		console.log(obj.uuid);
+		console.log(intersects[0].uuid);
+		// make new comment
+		const n = new THREE.Vector3()
+		n.copy(intersects[0].face.normal)
+		n.transformDirection(intersects[0].object.matrixWorld)
+
+		// using a flattened cone as circular plane
+		const coneGeometry = new THREE.ConeGeometry(1, 0, 8);
+		const cone = new THREE.Mesh(coneGeometry, material)
+		cone.lookAt(n)
+		cone.rotateX(Math.PI / 2)
+		cone.position.copy(intersects[0].point)
+		cone.position.addScaledVector(n, 0.1)
+		scene.add(cone)
+
+		curComment.pos.push(intersects[0].point);
+	}
+}
 function render() {
 	controls.update();
-
+	if (alting) checkMouse();
 	renderer.render(scene, camera);
 	requestAnimationFrame(render);
 }
 
 window.addEventListener('pointermove', onPointerMove);
-renderer.domElement.addEventListener('click', onClick, false)
+function mouseDown() {
+	clicking = true;
+}
+function mouseUp() {
+	clicking = false;
+}
+window.addEventListener("mousedown", mouseDown);
+window.addEventListener("mouseup", mouseUp);
+
 
 window.addEventListener('keydown', keyDown);
 window.addEventListener('keyup', keyUp);
 function keyDown(e) {
 	if (e.key === "Alt") {
-		commenting = true;
+		alting = true;
 		controls.enabled = false;
+		curComment = new Comment();
 	}
 }
 function keyUp(e) {
 	if (e.key === "Alt") {
-		commenting = false;
+		alting = false;
 		controls.enabled = true;
+		var prom = prompt("please enter ur comment");
+		curComment.text = prom;
+		comments.push(curComment);
+		addComment(prom);
 	}
 }
 
