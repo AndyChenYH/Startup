@@ -1,5 +1,6 @@
 body {
 	margin: 0px;
+	background: linear-gradient(45deg, #209cff, #68e0cf);
 }
 
 .flexContainer {
@@ -19,7 +20,6 @@ li {
 
 	align-items: center;
 	padding: 0 1rem;
-	background: linear-gradient(45deg, #209cff, #68e0cf);
 	/* padding: 3rem 0; */
 	height: 300px;
 	overflow-y: auto;
@@ -127,11 +127,6 @@ p {
 	color: black;
 }
 
-/* Add an active class to highlight the current page */
-.topnav a.active {
-	background-color: #04AA6D;
-	color: white;
-}
 
 /* Hide the link that should open and close the topnav on small screens */
 .topnav .icon {
