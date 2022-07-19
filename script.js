@@ -139,9 +139,11 @@ function onClick(event) {
 			}
 			// fetch existing comment
 			else {
-				var curColor = document.getElementById(fetch.toString()).style.backgroundColor;
-				document.getElementById(fetch.toString()).style.backgroundColor = "yellow";
-				setInterval(function() {document.getElementById(fetch.toString()).style.backgroundColor = curColor; }, 1000);
+				var el = document.getElementById(fetch.toString());
+				var curColor = el.style.backgroundColor;
+				el.style.backgroundColor = "yellow";
+				el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+				setInterval(function() {el.style.backgroundColor = curColor; }, 1000);
 			}
 		}
 		// set back after commenting
@@ -182,19 +184,13 @@ function addComment(coord, text) {
 	entry.appendChild(time);
 	entry.appendChild(tex);
 	lis.appendChild(entry);
-	entry.scrollIntoView();
+	entry.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
 }
 
 // tester
 {
 	addComment(new Vector3(0, 0, 0), "this is a very bad design please fix this thanks");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
-	addComment(new Vector3(0, 0, 0), "gay");
+	console.log(JSON.stringify(comments));
 }	
 
 function render() {
